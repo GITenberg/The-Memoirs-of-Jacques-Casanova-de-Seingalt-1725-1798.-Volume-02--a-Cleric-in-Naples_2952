@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: yBQtQvy7vIFPhcGxnZiZlqTfIQCBCqO+1+ayeLB5HjbmNuTEY4phOjKMKGgl+B6JfhzyG1jyBRL0Jn6X8bI2UucHO+uhlTKI3vDLfS67xelkPflxVTH22kXqpDrK1w5uNoWGlLHNj4oWAtpczLeCqVRIpaXrjLvCW7JkkfU+gaPZx12KOxD+i2sSAP2Flm/QZc8dPCjJjxyAQxlhlTH97bfXzxMcp3x9RDdawlNlSr1oRMqbehvMrN6BffQfDy/CBLnFRWhUrGsJ+/09lXTPzYpj/ewfeGbwzhIX+FbHzGRYaSZ0aKj//fcL32pDrPipzxpeZIWUJ0Raqqpw2YncqeQw9aq42ORRaTbviX46zxDYt6805CHYBIBDWrtizzEgdu5bYAUqFO0UZmc3I0qIUlpBJJT5m2w7Ppe+v45+NBzNriqT3a6aokjUVrv9r6eLPDl7gO45cOTjIdphICJ1yfSjgkLc0HTuC9PMq1BeVYUdElfZxyVZqCjctL1F6Ij99TmAhkKslANX7+PdKI3CDUgUAlrb60+c8BAOCglIfqtcF2XfaaWf599oIccdIxE4s1jW2/0qkWgEet5EYQsFF6n35nJlS2Yy9H3+kELs8ToxP/NiZ1eMaSgBtw5rfPfKPFtPg5Tyq7nLZiC+JBPMa4debvbXg6IGk0rk7jiDETA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Memoirs-of-Jacques-Casanova-de-Seingalt-1725-1798.-Volume-02--a-Cleric-in-Naples_2952
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
